@@ -1,9 +1,6 @@
 requests
 uuid
-io
-base64
 openai
-PIL
+Pillow
 numpy
 streamlit
-os
