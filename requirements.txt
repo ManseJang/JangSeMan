@@ -1,0 +1,11 @@
+requests
+uuid
+json
+time
+io
+base64
+openai
+PIL
+numpy
+streamlit
+os
