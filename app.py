@@ -69,7 +69,7 @@ def generate_chatgpt_response(text):
     feedback = response.choices[0].message.content
     return feedback
 
-st.title("논설문 피드백 챗봇 by 장세만")
+st.title("논설문 피드백 챗봇")
 
 uploaded_file = st.file_uploader("이미지를 업로드하세요", type=["jpg", "jpeg", "png"])
 
