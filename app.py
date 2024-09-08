@@ -10,6 +10,8 @@ import numpy as np
 import streamlit as st
 import os
 
+st.set_page_config(layout="wide")
+
 # OpenAI API Key 설정
 os.environ["OPENAI_API_KEY"] = st.secrets["api_key"]
 ocr_api_url = st.secrets["ocr_api_url"]
@@ -46,50 +48,136 @@ def OCR_parser(image):
         st.error(f"OCR 요청 실패: {response.status_code}")
         return None
 
-def generate_chatgpt_response(text):
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": '''너는 초등학교 국어선생님이다. 학생들이 논설문을 잘 학습할 수 있도록 도움을 주어야 한다.
+def generate_chatgpt_response(text, writing_type):
+    if writing_type == "논설문":
+        system_prompt = '''너는 초등학교 국어선생님이다. 학생들이 논설문을 잘 학습할 수 있도록 도움을 주어야 한다.
                     항상 경어를 사용해야해. 학생들이 아래 입력한 논설문에 대해 아래 점검 내용을 참고하여 피드백과 100점 만점에 몇 점인지 점수를 제공해라.
                     피드백은 한국말로, 초등학생 수준의 단어와 문장을 사용해서 한국어로 작성해야 한다.
                     점검 내용의 각 부분의 점수를 20점 만점으로 산출하여 총점 100점에 몇 점인지 점수를 제공해라..
                     학생이 발전할 수 있도록 조언을 3줄 정도 마지막에 제공해라.
                     피드백에 학생들이 이해할 수 있도록 예시를 충분히 제공해라.
-                    위의 조언들을 참고하여 학생의 논설문을 수정해서 학생에게 제공해라.
+                    위의 조언들을 참고하여 학생의 논설문을 수정해서 수정된 논설문 예시를 학생에게 제공해라.
+                    논설문 예시에는 너의 생각이나 응원을 쓰지 말고 학생 입장에서 작성한 글만 적어줘。
+                    마크다운 문법을 적용하여 한 눈에 알아보기 쉽도록 피드백을 제공하여라
+                    챗봇의 피드백 하단에 각 항목별 점수를 더하여 총점을 작성해줘
                     점검내용:
-                    1. 주장이 가치있고 중요한가
-                    2. 근거가 주장과 관련이 있는가
-                    3. 근거가 주장을 뒷받침하는가
-                    4. 표현이 적절한가(주관적인 표현, 모하한 표현, 단정적인 표현을 쓰지 않아야 한다.)
-                    5. 문장이 자연스럽게 이어지고, 맞춤법이 틀린 부분이 없는가.'''},
+                    1. 실천할 수 있는 주장인가?
+                    2. 근거가 주장을 뒷박침하는가?
+                    3. 자료가 내용을 뒷받침하는가?
+                    4. 믿을 만한 자료를 활용하였는가?
+                    5. 사용한 표현이 적절한가?'''
+    elif writing_type == "독서감상문":
+        system_prompt = '''너는 초등학교 국어선생님이다. 학생들이 독서감상문을 잘 학습할 수 있도록 도움을 주어야 한다.
+                    항상 경어를 사용해야해. 학생들이 아래 입력한 독서감상문에 대해 아래 점검 내용을 참고하여 피드백과 100점 만점에 몇 점인지 점수를 제공해라.
+                    피드백은 한국말로, 초등학생 수준의 단어와 문장을 사용해서 한국어로 작성해야 한다.
+                    점검 내용의 각 부분의 점수를 20점 만점으로 산출하여 총점 100점에 몇 점인지 점수를 제공해라..
+                    학생이 발전할 수 있도록 조언을 3줄 정도 마지막에 제공해라.
+                    피드백에 학생들이 이해할 수 있도록 예시를 충분히 제공해라.
+                    위의 조언들을 참고하여 학생의 독서감상문을 수정해서 수정된 독서감상문 예시를 학생에게 제공해라.
+                    독서감상문 예시에는 너의 생각이나 응원을 쓰지 말고 학생 입장에서 작성한 글만 적어줘。
+                    마크다운 문법을 적용하여 한 눈에 알아보기 쉽도록 피드백을 제공하여라
+                    챗봇의 피드백 하단에 각 항목별 점수를 더하여 총점을 작성해줘
+                    점검내용:
+                    1. 내용에 알맞은 제목을 붙였나요?
+                    2. 인상 깊게 읽은 부분이 나타났나요?
+                    3. 자신의 생각이나 느낌이 드러났나요?
+                    4. 내용을 잘 전할 수 있는 형식인가요?
+                    5. 맞춤법과 문법이 정확한가요?'''
+    elif writing_type == "기행문":
+        system_prompt = '''너는 초등학교 국어선생님이다. 학생들이 기행문을 잘 학습할 수 있도록 도움을 주어야 한다.
+                    항상 경어를 사용해야해. 학생들이 아래 입력한 기행문에 대해 아래 점검 내용을 참고하여 피드백과 100점 만점에 몇 점인지 점수를 제공해라.
+                    피드백은 한국말로, 초등학생 수준의 단어와 문장을 사용해서 한국어로 작성해야 한다.
+                    점검 내용의 각 부분의 점수를 20점 만점으로 산출하여 총점 100점에 몇 점인지 점수를 제공해라..
+                    학생이 발전할 수 있도록 조언을 3줄 정도 마지막에 제공해라.
+                    피드백에 학생들이 이해할 수 있도록 예시를 충분히 제공해라.
+                    위의 조언들을 참고하여 학생의 기행문을 수정해서 수정된 기행문 예시를 학생에게 제공해라.
+                    기행문 예시에는 너의 생각이나 응원을 쓰지 말고 학생 입장에서 작성한 글만 적어줘。
+                    마크다운 문법을 적용하여 한 눈에 알아보기 쉽도록 피드백을 제공하여라
+                    챗봇의 피드백 하단에 각 항목별 점수를 더하여 총점을 작성해줘
+                    점검내용:
+                    1. 여행한 목적이 잘 드러났다.
+                    2. 여행, 견문, 감상이 잘 드러났다.
+                    3. 읽을 사람을 예상해 썼다.
+                    4. 글의 전체 짜임이 자연스럽다.
+                    5. 맞춤법과 문법이 정확한가요?'''
+    elif writing_type == "일기":
+        system_prompt = '''너는 초등학교 국어선생님이다. 학생들이 일기를 잘 학습할 수 있도록 도움을 주어야 한다.
+                    항상 경어를 사용해야해. 학생들이 아래 입력한 일기에 대해 아래 점검 내용을 참고하여 피드백과 100점 만점에 몇 점인지 점수를 제공해라.
+                    피드백은 한국말로, 초등학생 수준의 단어와 문장을 사용해서 한국어로 작성해야 한다.
+                    점검 내용의 각 부분의 점수를 20점 만점으로 산출하여 총점 100점에 몇 점인지 점수를 제공해라..
+                    학생이 발전할 수 있도록 조언을 3줄 정도 마지막에 제공해라.
+                    피드백에 학생들이 이해할 수 있도록 예시를 충분히 제공해라.
+                    위의 조언들을 참고하여 학생의 일기를 수정해서 수정된 일기 예시를 학생에게 제공해라.
+                    일기 예시에는 너의 생각이나 응원을 쓰지 말고 학생 입장에서 작성한 글만 적어줘。
+                    마크다운 문법을 적용하여 한 눈에 알아보기 쉽도록 피드백을 제공하여라
+                    챗봇의 피드백 하단에 각 항목별 점수를 더하여 총점을 작성해줘
+                    점검내용:
+                    1. 일기에 날짜가 적혀 있나요?
+                    2. 하루 동안 있었던 일이 잘 드러났나요?
+                    3. 자신의 생각이나 느낌이 잘 표현되었나요?
+                    4. 글의 흐름이 자연스러웠나요?
+                    5. 맞춤법과 문법이 정확한가요? '''
+    response = client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
         ]
     )
     feedback = response.choices[0].message.content
     return feedback
 
-st.title("논설문 피드백 챗봇")
+# 스트림릿 앱 레이아웃
+st.title("학생 주도적 글 피드백 시스템")
 
-uploaded_file = st.file_uploader("이미지를 업로드하세요", type=["jpg", "jpeg", "png"])
+# 사이드바에 사용법과 글 유형 선택 배치
+st.sidebar.title("사용법")
+st.sidebar.write("""
+1. 이미지를 업로드합니다.
+2. 인식된 텍스트가 오른쪽에 표시됩니다.
+3. 글 유형을 선택한 후, '피드백 생성'을 누르면 피드백이 나타납니다.
+""")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.subheader("업로드된 이미지")
-    st.image(image, caption="업로드된 이미지", use_column_width=True)
+st.sidebar.title("글 유형 선택")
+writing_type = st.sidebar.selectbox(
+    "글의 유형을 선택하세요", 
+    ("논설문", "설명문", "기행문", "일기")
+)
 
-    with st.spinner("글자를 읽는 중입니다..."):
-        ocr_result = OCR_parser(image)
+# 메인 레이아웃 - 화면을 넓게 퍼지게 설정
+col1, col2 = st.columns([1.5, 2.5])
 
-    if ocr_result:
-        extracted_text = " ".join([field['inferText'] for field in ocr_result])
-        st.subheader("인식한 글자")
-        st.write(extracted_text)
-    else:
-        extracted_text = ""
+# 왼쪽에 이미지 업로드
+with col1:
+    uploaded_file = st.file_uploader("이미지를 업로드하세요 (jpg, jpeg, png)", type=["jpg", "jpeg", "png"])
 
-    if extracted_text:
-        with st.spinner("피드백을 생성 중입니다..."):
-            chatgpt_response = generate_chatgpt_response(extracted_text)
-        st.subheader("챗봇의 피드백")
-        st.write(chatgpt_response)
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        st.image(image, caption="업로드된 이미지", use_column_width=True)
+
+        with st.spinner("이미지에서 텍스트를 추출 중입니다..."):
+            ocr_result = OCR_parser(image)
+
+        if ocr_result:
+            extracted_text = " ".join([field['inferText'] for field in ocr_result])
+            st.session_state['extracted_text'] = extracted_text
+        else:
+            st.error("이미지에서 텍스트를 추출하지 못했습니다.")
+
+# CSS 스타일을 사용해 텍스트 너비를 제한하여 한 눈에 볼 수 있도록 설정
+with col2:
+    if 'extracted_text' in st.session_state:
+        st.subheader("인식된 텍스트")
+        st.markdown(
+            f"<div style='font-size: 20px; max-width: 800px; word-wrap: break-word;'>{st.session_state['extracted_text']}</div>",
+            unsafe_allow_html=True
+        )  # 글자 크기를 20px로 설정하고 너비를 800px로 제한
+
+        if st.button("피드백 생성"):
+            with st.spinner("피드백 생성 중..."):
+                chatgpt_response = generate_chatgpt_response(st.session_state['extracted_text'], writing_type)
+            st.subheader("챗봇의 피드백")
+            st.markdown(
+                f"<div style='font-size: 20px; max-width: 800px; word-wrap: break-word;'>{chatgpt_response}</div>",
+                unsafe_allow_html=True
+            )  # 글자 크기를 20px로 설정하고 너비를 800px로 제한
