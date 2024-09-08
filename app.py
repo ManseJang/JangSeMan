@@ -118,7 +118,7 @@ def generate_chatgpt_response(text, writing_type):
                     4. 글의 흐름이 자연스러웠나요?
                     5. 맞춤법과 문법이 정확한가요? '''
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
