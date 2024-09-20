@@ -167,7 +167,7 @@ with col1:
         image = Image.open(uploaded_file)
         st.image(image, caption="업로드된 이미지", use_column_width=True)
 
-        with st.spinner("이미지에서 텍스트를 추출 중입니다..."):
+        with st.spinner("이미지에서 글을 추출 중입니다..."):
             ocr_result = OCR_parser(image)
 
         if ocr_result:
@@ -179,7 +179,7 @@ with col1:
 # CSS 스타일을 사용해 텍스트 너비를 제한하여 한 눈에 볼 수 있도록 설정
 with col2:
     if 'extracted_text' in st.session_state:
-        st.subheader("인식된 텍스트")
+        st.subheader("인식된 글")
         st.markdown(
             f"<div style='font-size: 20px; max-width: 800px; word-wrap: break-word;'>{st.session_state['extracted_text']}</div>",
             unsafe_allow_html=True
@@ -188,7 +188,7 @@ with col2:
         if st.button("피드백 생성"):
             with st.spinner("피드백 생성 중..."):
                 chatgpt_response = generate_chatgpt_response(st.session_state['extracted_text'], writing_type)
-            st.subheader("챗봇의 피드백")
+            st.subheader("글잼의 피드백")
             st.markdown(
                 f"<div style='font-size: 20px; max-width: 800px; word-wrap: break-word;'>{chatgpt_response}</div>",
                 unsafe_allow_html=True
