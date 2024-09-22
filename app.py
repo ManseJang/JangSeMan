@@ -140,7 +140,7 @@ def generate_chatgpt_response(text, writing_type):
     return feedback
 
 
-st.title("글잼📄으로 자기주도적 글쓰기✏ 능력 향상하기")
+st.title("글잼 프로그램으로 HIT하여 자기주도적 글쓰기 능력(HOME) 기르기(6학년)")
 
 
 st.sidebar.title("사용법")
