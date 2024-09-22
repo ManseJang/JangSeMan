@@ -139,10 +139,10 @@ def generate_chatgpt_response(text, writing_type):
     feedback = response.choices[0].message.content
     return feedback
 
-# 스트림릿 앱 레이아웃
+
 st.title("글잼📄으로 자기주도적 글쓰기✏ 능력 향상하기")
 
-# 사이드바에 사용법과 글 유형 선택 배치
+
 st.sidebar.title("사용법")
 st.sidebar.write("""
 1. 좌측 사이드바에서 글 유형을 선택한 후 이미지를 업로드합니다.
@@ -156,10 +156,10 @@ writing_type = st.sidebar.selectbox(
     ("논설문", "설명문", "독서감상문", "일기")
 )
 
-# 메인 레이아웃 - 화면을 넓게 퍼지게 설정
+
 col1, col2 = st.columns([1.5, 2.5])
 
-# 왼쪽에 이미지 업로드
+
 with col1:
     uploaded_file = st.file_uploader("이미지를 업로드하세요 (jpg, jpeg, png)", type=["jpg", "jpeg", "png"])
 
@@ -176,14 +176,14 @@ with col1:
         else:
             st.error("이미지에서 텍스트를 추출하지 못했습니다.")
 
-# CSS 스타일을 사용해 텍스트 너비를 제한하여 한 눈에 볼 수 있도록 설정
+
 with col2:
     if 'extracted_text' in st.session_state:
         st.subheader("인식된 글")
         st.markdown(
             f"<div style='font-size: 20px; max-width: 800px; word-wrap: break-word;'>{st.session_state['extracted_text']}</div>",
             unsafe_allow_html=True
-        )  # 글자 크기를 20px로 설정하고 너비를 800px로 제한
+        )  
 
         if st.button("피드백 생성"):
             with st.spinner("피드백 생성 중..."):
@@ -192,4 +192,4 @@ with col2:
             st.markdown(
                 f"<div style='font-size: 20px; max-width: 800px; word-wrap: break-word;'>{chatgpt_response}</div>",
                 unsafe_allow_html=True
-            )  # 글자 크기를 20px로 설정하고 너비를 800px로 제한
+            )  
